@@ -11,18 +11,28 @@ class CfdProject extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'title', 'slug', 'description',
-        'software', 'solver', 'mesh_cells',
-        'reynolds_number', 'turbulence_model',
-        'simulation_type', 'results_summary',
-        'status', 'views_count',
+        'user_id',
+        'title',
+        'slug',
+        'description',
+        'software',
+        'solver',
+        'mesh_cells',
+        'reynolds_number',
+        'turbulence_model',
+        'simulation_type',
+        'results_summary',
+        'status',
+        'views_count',
     ];
 
     protected $casts = [
-        'mesh_cells'       => 'integer',
-        'reynolds_number'  => 'float',
-        'views_count'      => 'integer',
+        'mesh_cells' => 'integer',
+        'reynolds_number' => 'float',
+        'views_count' => 'integer',
     ];
+
+
 
     // ---- Relationships ----
 

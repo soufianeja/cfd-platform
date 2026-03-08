@@ -1,35 +1,33 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\CfdProject;
+namespace App\Http\Controllers\Api\V1\Project;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CfdProject\StoreCfdProjectRequest;
-use App\Http\Requests\CfdProject\UpdateCfdProjectRequest;
-use App\Http\Resources\CfdProject\CfdProjectResource;
-use App\Models\CfdProject;
-use App\Services\CfdProjectService;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Resources\Project\ProjectResource;
+use App\Models\Project;
+use App\Services\ProjectService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-class CfdProjectController extends Controller
+class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
     public function __construct(
-        private CfdProjectService $service
+        private ProjectService $service
     ) {
     }
 
     public function index(Request $request)
     {
         $projects = $this->service->getAll($request->only([
-            'software',
-            'simulation_type',
+            'project_type',
             'search'
         ]));
 
-        return CfdProjectResource::collection($projects);
+        return ProjectResource::collection($projects);
     }
 
     public function show(Request $request, string $slug)
@@ -43,44 +41,44 @@ class CfdProjectController extends Controller
             }
         }
 
-        return new CfdProjectResource($project);
+        return new ProjectResource($project);
     }
 
-    public function store(StoreCfdProjectRequest $request)
+    public function store(StoreProjectRequest $request)
     {
         $project = $this->service->create(
             $request->user(),
             $request->validated()
         );
 
-        return new CfdProjectResource($project);
+        return new ProjectResource($project);
     }
 
     public function mine(Request $request)
     {
-        $projects = CfdProject::where('user_id', $request->user()->id)
+        $projects = Project::where('user_id', $request->user()->id)
             ->with(['categories', 'tags'])
             ->latest()
             ->paginate(12);
 
-        return CfdProjectResource::collection($projects);
+        return ProjectResource::collection($projects);
     }
 
-    public function update(StoreCfdProjectRequest $request, CfdProject $cfdProject): JsonResponse
+    public function update(StoreProjectRequest $request, Project $project): JsonResponse
     {
-        $this->authorize('update', $cfdProject);
-        $project = $this->service->update($cfdProject, $request->validated());
+        $this->authorize('update', $project);
+        $updatedProject = $this->service->update($project, $request->validated());
 
         return response()->json([
             'message' => 'Project updated successfully.',
-            'data' => new CfdProjectResource($project),
+            'data' => new ProjectResource($updatedProject),
         ]);
     }
 
-    public function destroy(CfdProject $cfdProject): JsonResponse
+    public function destroy(Project $project): JsonResponse
     {
-        $this->authorize('delete', $cfdProject);
-        $this->service->delete($cfdProject);
+        $this->authorize('delete', $project);
+        $this->service->delete($project);
 
         return response()->json(['message' => 'Project deleted successfully.']);
     }

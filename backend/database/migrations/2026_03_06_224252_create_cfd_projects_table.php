@@ -17,15 +17,12 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description');
-            $table->enum('software', ['OpenFOAM', 'Fluent', 'StarCCM+', 'SU2', 'Other']);
+            $table->string('software');
             $table->string('solver')->nullable();
             $table->unsignedBigInteger('mesh_cells')->nullable();
             $table->float('reynolds_number')->nullable();
             $table->string('turbulence_model')->nullable(); // k-epsilon, k-omega, LES, DNS
-            $table->enum('simulation_type', [
-                'external_aero', 'internal_flow',
-                'heat_transfer', 'multiphase', 'turbomachinery', 'other'
-            ]);
+            $table->string('simulation_type');
             $table->text('results_summary')->nullable();
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->unsignedInteger('views_count')->default(0);

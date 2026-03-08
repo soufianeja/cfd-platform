@@ -1,58 +1,15 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Interfaces;
 
-use App\Models\CfdProject;
-use App\Repositories\Interfaces\CfdProjectRepositoryInterface;
+use App\Models\Project;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class CfdProjectRepository implements CfdProjectRepositoryInterface
+interface ProjectRepositoryInterface
 {
-    public function getAllPublished(array $filters): LengthAwarePaginator
-    {
-        return CfdProject::published()
-            ->with(['user', 'categories', 'tags']) // eager load — no N+1
-            ->when(isset($filters['software']), fn($q) =>
-                $q->where('software', $filters['software'])
-            )
-            ->when(isset($filters['simulation_type']), fn($q) =>
-                $q->where('simulation_type', $filters['simulation_type'])
-            )
-            ->when(isset($filters['search']), fn($q) =>
-                $q->where('title', 'like', "%{$filters['search']}%")
-            )
-            ->latest()
-            ->paginate(12);
-    }
-
-    public function findBySlug(string $slug): ?CfdProject
-    {
-        return CfdProject::published()
-            ->with([
-                'user',
-                'categories',
-                'tags',
-                'simulations.images',
-                'simulations.metrics',
-                'geometries',
-            ])
-            ->where('slug', $slug)
-            ->firstOrFail();
-    }
-
-    public function create(array $data): CfdProject
-    {
-        return CfdProject::create($data);
-    }
-
-    public function update(CfdProject $project, array $data): CfdProject
-    {
-        $project->update($data);
-        return $project->fresh(); // return updated instance from DB
-    }
-
-    public function delete(CfdProject $project): void
-    {
-        $project->delete(); // soft delete
-    }
+    public function getAllPublished(array $filters): LengthAwarePaginator;
+    public function findBySlug(string $slug): ?Project;
+    public function create(array $data): Project;
+    public function update(Project $project, array $data): Project;
+    public function delete(Project $project): void;
 }

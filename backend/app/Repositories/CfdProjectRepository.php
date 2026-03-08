@@ -12,13 +12,19 @@ class CfdProjectRepository implements CfdProjectRepositoryInterface
     {
         return CfdProject::published()
             ->with(['user', 'categories', 'tags']) // eager load — no N+1
-            ->when(isset($filters['software']), fn($q) =>
+            ->when(
+                isset($filters['software']),
+                fn($q) =>
                 $q->where('software', $filters['software'])
             )
-            ->when(isset($filters['simulation_type']), fn($q) =>
+            ->when(
+                isset($filters['simulation_type']),
+                fn($q) =>
                 $q->where('simulation_type', $filters['simulation_type'])
             )
-            ->when(isset($filters['search']), fn($q) =>
+            ->when(
+                isset($filters['search']),
+                fn($q) =>
                 $q->where('title', 'like', "%{$filters['search']}%")
             )
             ->latest()
@@ -27,15 +33,14 @@ class CfdProjectRepository implements CfdProjectRepositoryInterface
 
     public function findBySlug(string $slug): ?CfdProject
     {
-        return CfdProject::published()
-            ->with([
-                'user',
-                'categories',
-                'tags',
-                'simulations.images',
-                'simulations.metrics',
-                'geometries',
-            ])
+        return CfdProject::with([
+            'user',
+            'categories',
+            'tags',
+            'simulations.images',
+            'simulations.metrics',
+            'geometries',
+        ])
             ->where('slug', $slug)
             ->firstOrFail();
     }
