@@ -8,6 +8,11 @@ import CfdProjectDetail from '../pages/cfd/CfdProjectDetail'
 import CfdProjectCreate from '../pages/cfd/CfdProjectCreate'
 import Profile from '../pages/Profile'
 import CfdProjectEdit from '../pages/cfd/CfdProjectEdit'
+import ProjectList from '../pages/projects/ProjectList'
+import ProjectDetail from '../pages/projects/ProjectDetail'
+import ProjectCreate from '../pages/projects/ProjectCreate'
+import ProjectEdit from '../pages/projects/ProjectEdit'
+import CfdProjectGeometries from '../pages/cfd/CfdProjectGeometries'
 
 
 const router = createBrowserRouter([
@@ -28,12 +33,40 @@ const router = createBrowserRouter([
     ),
   },
   {
-  path: '/cfd/:slug/edit',
-  element: (
-    <ProtectedRoute>
-      <Layout><CfdProjectEdit /></Layout>
-    </ProtectedRoute>
-  ),
+    path: '/cfd/:slug/edit',
+    element: (
+      <ProtectedRoute>
+        <Layout><CfdProjectEdit /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/cfd/:slug/geometries',
+    element: <Layout><CfdProjectGeometries /></Layout>,
+  },
+  {
+    path: '/projects',
+    element: <Layout><ProjectList /></Layout>,
+  },
+  {
+    path: '/projects/:slug',
+    element: <Layout><ProjectDetail /></Layout>,
+  },
+  {
+    path: '/projects/create',
+    element: (
+      <ProtectedRoute>
+        <Layout><ProjectCreate /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/projects/:slug/edit',
+    element: (
+      <ProtectedRoute>
+        <Layout><ProjectEdit /></Layout>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/me',
@@ -43,7 +76,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  { path: '/login',    element: <Login /> },
+  { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
 ])
 

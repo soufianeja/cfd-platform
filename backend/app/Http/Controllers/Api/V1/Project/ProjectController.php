@@ -48,10 +48,15 @@ class ProjectController extends Controller
     {
         $project = $this->service->create(
             $request->user(),
-            $request->validated()
+            $request->validated(),
+            $request->file('pdf_file')
+
         );
 
-        return new ProjectResource($project);
+         return response()->json([
+        'message' => 'Project created successfully.',
+        'data'    => new ProjectResource($project),
+    ], 201);
     }
 
     public function mine(Request $request)

@@ -19,7 +19,6 @@ class CfdProjectResource extends JsonResource
             'reynolds_number'  => $this->reynolds_number,
             'turbulence_model' => $this->turbulence_model,
             'simulation_type'  => $this->simulation_type,
-            'results_summary'  => $this->results_summary,
             'status'           => $this->status,
             'views_count'      => $this->views_count,
             'created_at'       => $this->created_at->toDateString(),

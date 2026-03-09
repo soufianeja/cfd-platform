@@ -5,10 +5,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\CfdProject\CfdProjectController;
-// use App\Http\Controllers\Api\V1\Project\ProjectController;
-// use App\Http\Controllers\Api\V1\Social\CommentController;
-// use App\Http\Controllers\Api\V1\Social\LikeController;
-// use App\Http\Controllers\Api\V1\Social\FollowController;
+use App\Http\Controllers\Api\V1\Project\ProjectController;
+use App\Http\Controllers\Api\V1\Geometry\GeometryController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -18,8 +16,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/cfd-projects', [CfdProjectController::class, 'index']);
 Route::get('/cfd-projects/mine', [CfdProjectController::class, 'mine'])->middleware('auth:sanctum');
 Route::get('/cfd-projects/{slug}', [CfdProjectController::class, 'show']);
-// Route::get('/projects',            [ProjectController::class, 'index']);
-// Route::get('/projects/{slug}',     [ProjectController::class, 'show']);
+Route::get('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'index']);
+
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/mine', [ProjectController::class, 'mine'])->middleware('auth:sanctum');
+Route::get('/projects/{slug}', [ProjectController::class, 'show']);
+
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -33,8 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
         ->except(['index', 'show']);
 
     // Projects
-    // Route::apiResource('projects', ProjectController::class)
-    //      ->except(['index', 'show']);
+    Route::apiResource('projects', ProjectController::class)
+        ->except(['index', 'show']);
+
+    // Geometries
+    Route::post('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'store']);
+    Route::delete('/cfd-projects/{cfdProject}/geometries/{geometry}', [GeometryController::class, 'destroy']);
 
     // Social
     // Route::post('/comments',          [CommentController::class, 'store']);

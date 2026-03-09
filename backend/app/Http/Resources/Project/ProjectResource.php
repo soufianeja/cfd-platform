@@ -17,7 +17,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'project_type' => $this->project_type,
             'publication_year' => $this->publication_year,
-            'pdf_file' => $this->pdf_file,
+            'pdf_file' => $this->pdf_file ? \Illuminate\Support\Facades\Storage::url($this->pdf_file) : null,
             'external_link' => $this->external_link,
             'status' => $this->status,
             'views_count' => $this->views_count,

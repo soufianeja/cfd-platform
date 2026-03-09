@@ -23,6 +23,8 @@ class CfdProjectResource extends JsonResource
             'mesh_cells' => $this->mesh_cells,
             'reynolds_number' => $this->reynolds_number,
             'turbulence_model' => $this->turbulence_model,
+            'results_summary'  => $this->results_summary,
+
 
             'author' => [
                 'id' => $this->user?->id,
@@ -30,6 +32,8 @@ class CfdProjectResource extends JsonResource
             ],
 
             'created_at' => $this->created_at,
+
+            
         ];
     }
 }

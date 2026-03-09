@@ -23,6 +23,7 @@ class StoreProjectRequest extends FormRequest
             'tag_ids.*' => ['exists:tags,id'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['exists:categories,id'],
+            'pdf_file' => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10MB max
             'status' => ['required', 'in:draft,published,archived'],
         ];
     }

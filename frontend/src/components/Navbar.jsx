@@ -20,12 +20,18 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-blue-600">CFD Platform</Link>
         <div className="flex items-center gap-4">
-          <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">Projects</Link>
+          <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">CFD Projects</Link>
+          <Link to="/projects" className="text-sm text-gray-600 hover:text-indigo-600">Academic Projects</Link>
           {token ? (
             <>
-              <Link to="/cfd/create" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                + New Project
-              </Link>
+              <div className="flex gap-2">
+                <Link to="/cfd/create" className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
+                  + New CFD
+                </Link>
+                <Link to="/projects/create" className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700">
+                  + New Academic
+                </Link>
+              </div>
               <Link to="/me" className="text-sm text-gray-600 hover:text-blue-600">
                 {user?.name ?? 'Profile'}
               </Link>

@@ -32,11 +32,16 @@ class ProjectService
         return $project;
     }
 
-    public function create(User $user, array $data): Project
+    public function create(User $user, array $data, $file = null): Project
     {
         $data['user_id'] = $user->id;
-        $data['slug'] = Str::slug($data['title']) . '-' . Str::random(6);
-        $data['status'] = $data['status'] ?? 'draft';
+        $data['slug']    = Str::slug($data['title']) . '-' . Str::random(6);
+        $data['status']  = $data['status'] ?? 'draft';
+
+        // 👇 Ajout du PDF
+        if ($file) {
+            $data['pdf_file'] = $file->store('projects/pdfs', 'public');
+        }
 
         $project = $this->repository->create($data);
 
@@ -49,7 +54,7 @@ class ProjectService
         }
 
         return $project;
-    }
+    }                                                   
 
     public function update(Project $project, array $data): Project
     {

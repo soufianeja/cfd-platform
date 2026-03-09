@@ -16,10 +16,17 @@ export default function Profile() {
         },
     })
 
-    const { data: myProjects, isLoading: loadingProjects } = useQuery({
+    const { data: myCfdProjects, isLoading: loadingCfdProjects } = useQuery({
         queryKey: ['my-cfd-projects'],
         queryFn: async () => {
             const { data } = await api.get('/cfd-projects/mine')
+            return data.data
+        },
+    })
+    const { data: myProjects, isLoading: loadingProjects } = useQuery({
+        queryKey: ['my-projects'],
+        queryFn: async () => {
+            const { data } = await api.get('/projects/mine')
             return data.data
         },
     })
@@ -64,6 +71,43 @@ export default function Profile() {
                     <Link to="/cfd/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">+ New Project</Link>
                 </div>
 
+                {loadingCfdProjects && <p className="text-gray-500 text-sm">Loading projects...</p>}
+
+                {myCfdProjects?.length === 0 && (
+                    <p className="text-gray-400 text-sm">No projects yet. Create your first one!</p>
+                )}
+
+                <div className="space-y-4">
+                    {myCfdProjects?.map((cfd_project) => (
+                        <div key={cfd_project.id} className="border rounded-lg p-4 flex items-center justify-between">
+                            <div>
+                                <h3 className="font-semibold">{cfd_project.title}</h3>
+                                <div className="flex gap-2 mt-1">
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                        {cfd_project.software}
+                                    </span>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full ${cfd_project.status === 'published'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-yellow-100 text-yellow-700'
+                                        }`}>
+                                        {cfd_project.status}
+                                    </span>
+                                </div>
+                            </div>
+                            <Link
+                                to={`/cfd/${cfd_project.slug}`}
+                                className="text-blue-600 text-sm hover:underline"
+                            >
+                                View →
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold">My Academic Projects</h2>
+                    <Link to="/projects/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">+ New Project</Link>
+                </div>
+
                 {loadingProjects && <p className="text-gray-500 text-sm">Loading projects...</p>}
 
                 {myProjects?.length === 0 && (
@@ -77,7 +121,7 @@ export default function Profile() {
                                 <h3 className="font-semibold">{project.title}</h3>
                                 <div className="flex gap-2 mt-1">
                                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                        {project.software}
+                                        {project.project_type}
                                     </span>
                                     <span className={`text-xs px-2 py-0.5 rounded-full ${project.status === 'published'
                                             ? 'bg-green-100 text-green-700'
@@ -88,7 +132,7 @@ export default function Profile() {
                                 </div>
                             </div>
                             <Link
-                                to={`/cfd/${project.slug}`}
+                                to={`/projects/${project.slug}`}
                                 className="text-blue-600 text-sm hover:underline"
                             >
                                 View →

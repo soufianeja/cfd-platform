@@ -50,6 +50,12 @@ export default function CfdProjectDetail() {
           )}
         </div>
         <p className="text-gray-600 leading-relaxed">{data.description}</p>
+        <Link
+          to={`/cfd/${data.slug}/geometries`}
+          className="inline-block mt-4 text-sm text-gray-600 border px-4 py-1.5 rounded-lg hover:bg-gray-50 flex items-center gap-2 w-fit"
+        >
+          📐 View Geometries ({data.geometries?.length ?? 0})
+        </Link>
       </div>
 
       {/* Metrics */}
