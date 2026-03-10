@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Geometry;
 use App\Repositories\Interfaces\GeometryRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class GeometryRepository implements GeometryRepositoryInterface
 {
@@ -12,6 +13,15 @@ class GeometryRepository implements GeometryRepositoryInterface
         return Geometry::where('cfd_project_id', $cfdProjectId)
             ->latest()
             ->get();
+    }
+
+    public function getAllPublic(array $filters): LengthAwarePaginator
+    {
+        return Geometry::with('cfdProject')
+            ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->when($filters['type']   ?? null, fn($q, $t) => $q->where('file_type', $t))
+            ->orderBy('created_at', 'desc')
+            ->paginate(18);
     }
 
     public function find(int $id): ?Geometry

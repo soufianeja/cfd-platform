@@ -19,6 +19,11 @@ class GeometryService
         return $this->repository->getForProject($cfdProject->id);
     }
 
+    public function getAllPublic(array $filters): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return $this->repository->getAllPublic($filters);
+    }
+
     public function create(CfdProject $cfdProject, array $data, $file, $preview = null): Geometry
     {
         $data['cfd_project_id'] = $cfdProject->id;

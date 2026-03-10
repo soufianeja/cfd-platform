@@ -8,98 +8,28 @@ use App\Http\Requests\Simulation\UpdateSimulationRequest;
 use App\Http\Resources\Simulation\SimulationResource;
 use App\Models\Geometry;
 use App\Models\Simulation;
+use App\Services\SimulationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class SimulationController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        protected SimulationService $service
+    ) {}
 
     /**
      * List all simulations for a geometry.
      */
     public function index(Geometry $geometry): JsonResponse
     {
-        $simulations = $geometry->simulations()
-            ->with(['metrics', 'images'])
-            ->get();
+        $simulations = $this->service->getAllForGeometry($geometry);
 
         return response()->json([
             'data' => SimulationResource::collection($simulations),
-        ]);
-    }
-
-    /**
-     * Create a new simulation and its metrics.
-     */
-    public function store(StoreSimulationRequest $request, Geometry $geometry): JsonResponse
-    {
-        $this->authorize('update', $geometry->cfdProject);
-
-        $validated = $request->validated();
-
-        $simulation = $geometry->simulations()->create([
-            'title'       => $validated['title'],
-            'description' => $validated['description'] ?? null,
-            'status'      => $validated['status'],
-        ]);
-
-        // Bulk-insert metrics
-        if (!empty($validated['metrics'])) {
-            $simulation->metrics()->createMany(
-                array_map(fn($m) => [
-                    'key'   => $m['key'],
-                    'value' => $m['value'],
-                    'unit'  => $m['unit'] ?? null,
-                ], $validated['metrics'])
-            );
-        }
-
-        // Store uploaded images
-        $this->storeImages($request, $simulation);
-
-        $simulation->load(['metrics', 'images']);
-
-        return response()->json([
-            'message' => 'Simulation created successfully.',
-            'data'    => new SimulationResource($simulation),
-        ], 201);
-    }
-
-    /**
-     * Update an existing simulation.
-     */
-    public function update(UpdateSimulationRequest $request, Geometry $geometry, Simulation $simulation): JsonResponse
-    {
-        abort_if($simulation->geometry_id !== $geometry->id, 404);
-        $this->authorize('update', $geometry->cfdProject);
-
-        $simulation->update($request->only(['title', 'description', 'status']));
-
-        // Replace metrics if provided
-        if ($request->has('metrics')) {
-            $simulation->metrics()->delete();
-            if (!empty($request->metrics)) {
-                $simulation->metrics()->createMany(
-                    array_map(fn($m) => [
-                        'key'   => $m['key'],
-                        'value' => $m['value'],
-                        'unit'  => $m['unit'] ?? null,
-                    ], $request->metrics)
-                );
-            }
-        }
-
-        // Add new images
-        $this->storeImages($request, $simulation);
-
-        $simulation->load(['metrics', 'images']);
-
-        return response()->json([
-            'message' => 'Simulation updated successfully.',
-            'data'    => new SimulationResource($simulation),
         ]);
     }
 
@@ -118,41 +48,51 @@ class SimulationController extends Controller
     }
 
     /**
-     * Delete a simulation.
+     * Create a new simulation with metrics and images.
      */
-    public function destroy(Geometry $geometry, Simulation $simulation): JsonResponse
+    public function store(StoreSimulationRequest $request, Geometry $geometry): JsonResponse
     {
-        abort_if($simulation->geometry_id !== $geometry->id, 404);
-
         $this->authorize('update', $geometry->cfdProject);
 
-        $simulation->delete();
+        $simulation = $this->service->create(
+            $geometry,
+            $request->validated(),
+            $request->file('images', [])
+        );
 
-        return response()->json(['message' => 'Simulation deleted successfully.']);
+        return response()->json([
+            'message' => 'Simulation created successfully.',
+            'data'    => new SimulationResource($simulation),
+        ], 201);
     }
 
     /**
-     * Delete a specific simulation image.
+     * Update an existing simulation.
      */
-    public function destroyImage(Geometry $geometry, Simulation $simulation, int $imageId): JsonResponse
+    public function update(UpdateSimulationRequest $request, Geometry $geometry, Simulation $simulation): JsonResponse
     {
         abort_if($simulation->geometry_id !== $geometry->id, 404);
         $this->authorize('update', $geometry->cfdProject);
 
-        $image = $simulation->images()->findOrFail($imageId);
-        Storage::disk('public')->delete($image->path);
-        $image->delete();
+        $simulation = $this->service->update(
+            $simulation,
+            $request->validated(),
+            $request->file('images', [])
+        );
 
-        return response()->json(['message' => 'Image deleted.']);
+        return response()->json([
+            'message' => 'Simulation updated successfully.',
+            'data'    => new SimulationResource($simulation),
+        ]);
     }
 
     /**
-     * Append metrics to an existing simulation (inline from detail page).
+     * Append metrics to a simulation (inline from detail page).
      */
     public function storeMetrics(Request $request, Geometry $geometry, Simulation $simulation): JsonResponse
     {
         abort_if($simulation->geometry_id !== $geometry->id, 404);
-        $this->authorize('update', $geometry->cfdProject);
+        $this->authorize('modify', $simulation);
 
         $request->validate([
             'metrics'         => ['required', 'array', 'min:1'],
@@ -161,15 +101,7 @@ class SimulationController extends Controller
             'metrics.*.unit'  => ['nullable', 'string', 'max:50'],
         ]);
 
-        $simulation->metrics()->createMany(
-            array_map(fn($m) => [
-                'key'   => $m['key'],
-                'value' => $m['value'],
-                'unit'  => $m['unit'] ?? null,
-            ], $request->metrics)
-        );
-
-        $simulation->load(['metrics', 'images']);
+        $simulation = $this->service->addMetrics($simulation, $request->metrics);
 
         return response()->json([
             'message' => 'Metrics added.',
@@ -178,12 +110,12 @@ class SimulationController extends Controller
     }
 
     /**
-     * Upload a single image to a simulation (inline from detail page).
+     * Upload a single image (inline from detail page).
      */
     public function storeImage(Request $request, Geometry $geometry, Simulation $simulation): JsonResponse
     {
         abort_if($simulation->geometry_id !== $geometry->id, 404);
-        $this->authorize('update', $geometry->cfdProject);
+        $this->authorize('modify', $simulation);
 
         $request->validate([
             'image'   => ['required', 'file', 'image', 'max:5120'],
@@ -192,17 +124,15 @@ class SimulationController extends Controller
             'order'   => ['nullable', 'integer'],
         ]);
 
-        $path = $request->file('image')->store('simulations/images', 'public');
         $order = $simulation->images()->count();
 
-        $simulation->images()->create([
-            'path'    => $path,
-            'type'    => $request->type,
-            'caption' => $request->caption,
-            'order'   => $request->input('order', $order),
-        ]);
-
-        $simulation->load(['metrics', 'images']);
+        $simulation = $this->service->addImage(
+            $simulation,
+            $request->file('image'),
+            $request->type,
+            $request->caption,
+            $request->input('order', $order)
+        );
 
         return response()->json([
             'message' => 'Image uploaded.',
@@ -211,24 +141,28 @@ class SimulationController extends Controller
     }
 
     /**
-     * Helper: store uploaded images for a simulation.
+     * Delete a specific image.
      */
-    private function storeImages(Request $request, Simulation $simulation): void
+    public function destroyImage(Geometry $geometry, Simulation $simulation, int $imageId): JsonResponse
     {
-        if (!$request->hasFile('images')) return;
+        abort_if($simulation->geometry_id !== $geometry->id, 404);
+        $this->authorize('modify', $simulation);
 
-        $types    = $request->input('image_types', []);
-        $captions = $request->input('image_captions', []);
-        $order    = $simulation->images()->count();
+        $this->service->deleteImage($simulation, $imageId);
 
-        foreach ($request->file('images') as $i => $file) {
-            $path = $file->store('simulations/images', 'public');
-            $simulation->images()->create([
-                'path'    => $path,
-                'type'    => $types[$i]    ?? 'other',
-                'caption' => $captions[$i] ?? null,
-                'order'   => $order + $i,
-            ]);
-        }
+        return response()->json(['message' => 'Image deleted.']);
+    }
+
+    /**
+     * Delete a simulation.
+     */
+    public function destroy(Geometry $geometry, Simulation $simulation): JsonResponse
+    {
+        abort_if($simulation->geometry_id !== $geometry->id, 404);
+        $this->authorize('modify', $simulation);
+
+        $this->service->delete($simulation);
+
+        return response()->json(['message' => 'Simulation deleted successfully.']);
     }
 }

@@ -8,18 +8,20 @@ use App\Http\Resources\Geometry\GeometryResource;
 use App\Models\CfdProject;
 use App\Models\Geometry;
 use App\Services\GeometryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class GeometryController extends Controller
 {
     use AuthorizesRequests;
 
     public function __construct(protected GeometryService $geometryService)
-    {
-    }
+    {}
 
+    /**
+     * List all geometries for a single CFD project.
+     */
     public function index(CfdProject $cfdProject): JsonResponse
     {
         $geometries = $this->geometryService->getForProject($cfdProject);
@@ -30,33 +32,25 @@ class GeometryController extends Controller
     }
 
     /**
-     * Public geometry store — all geometries across all projects.
+     * Public geometry store — all geometries across all projects, paginated & filtered.
      */
     public function all(Request $request): JsonResponse
     {
-        $query = Geometry::with('cfdProject')
-            ->orderBy('created_at', 'desc');
-
-        if ($search = $request->query('search')) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        if ($type = $request->query('type')) {
-            $query->where('file_type', $type);
-        }
-
-        $geometries = $query->paginate(18);
+        $paginator = $this->geometryService->getAllPublic($request->only(['search', 'type']));
 
         return response()->json([
-            'data' => GeometryResource::collection($geometries),
+            'data' => GeometryResource::collection($paginator),
             'meta' => [
-                'total'        => $geometries->total(),
-                'current_page' => $geometries->currentPage(),
-                'last_page'    => $geometries->lastPage(),
+                'total'        => $paginator->total(),
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
             ],
         ]);
     }
 
+    /**
+     * Upload a new geometry file to a project.
+     */
     public function store(StoreGeometryRequest $request, CfdProject $cfdProject): JsonResponse
     {
         $this->authorize('update', $cfdProject);
@@ -70,13 +64,16 @@ class GeometryController extends Controller
 
         return response()->json([
             'message' => 'Geometry uploaded successfully.',
-            'data' => new GeometryResource($geometry),
+            'data'    => new GeometryResource($geometry),
         ], 201);
     }
 
+    /**
+     * Delete a geometry and its files.
+     */
     public function destroy(CfdProject $cfdProject, Geometry $geometry): JsonResponse
     {
-        $this->authorize('update', $cfdProject);
+        $this->authorize('modify', $geometry);
 
         $this->geometryService->delete($geometry);
 
