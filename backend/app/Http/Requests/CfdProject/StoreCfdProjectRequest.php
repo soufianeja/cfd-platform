@@ -8,8 +8,8 @@ class StoreCfdProjectRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Permission check at request level
-        return $this->user()->can('publish_cfd_project');
+        // Authentication check only — ownership is enforced by the Policy in the controller
+        return $this->user() !== null;
     }
 
     public function rules(): array
@@ -17,7 +17,7 @@ class StoreCfdProjectRequest extends FormRequest
         return [
             'title'            => ['required', 'string', 'max:255'],
             'description'      => ['required', 'string'],
-            'software'         => ['required', 'in:OpenFOAM,ANSYS Fluent,StarCCM+,SU2,Other'],
+            'software'         => ['required', 'in:OpenFOAM,ANSYS Fluent,STAR-CCM+,SU2,COMSOL,Other'],
             'solver'           => ['nullable', 'string', 'max:100'],
             'mesh_cells'       => ['nullable', 'integer', 'min:0'],
             'reynolds_number'  => ['nullable', 'numeric'],

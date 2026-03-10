@@ -2,6 +2,8 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../api/axios'
 import useAuthStore from '../../store/authStore'
+import LikeButton from '../../components/LikeButton'
+import CommentSection from '../../components/CommentSection'
 
 export default function CfdProjectDetail() {
   const { slug } = useParams()
@@ -12,6 +14,7 @@ export default function CfdProjectDetail() {
     queryKey: ['cfd-project', slug],
     queryFn: async () => {
       const { data } = await api.get(`/cfd-projects/${slug}`)
+      console.log(data.data)
       return data.data
     },
   })
@@ -40,21 +43,24 @@ export default function CfdProjectDetail() {
         </div>
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-3xl font-bold">{data.title}</h1>
-          {user?.id === data.author?.id && (
-            <Link
-              to={`/cfd/${data.slug}/edit`}
-              className="text-sm bg-gray-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-50 transition"
-            >
-              ✏️ Edit Project
-            </Link>
-          )}
+          <div className="flex items-center gap-2">
+            <LikeButton type="cfd_project" id={data.id} />
+            {user?.id === data.author?.id && (
+              <Link
+                to={`/cfd/${data.slug}/edit`}
+                className="text-sm bg-gray-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-50 transition"
+              >
+                ✏️ Edit Project
+              </Link>
+            )}
+          </div>
         </div>
         <p className="text-gray-600 leading-relaxed">{data.description}</p>
         <Link
           to={`/cfd/${data.slug}/geometries`}
           className="inline-block mt-4 text-sm text-gray-600 border px-4 py-1.5 rounded-lg hover:bg-gray-50 flex items-center gap-2 w-fit"
         >
-          📐 View Geometries ({data.geometries?.length ?? 0})
+          📐 View Geometries ({data.geometries_count ?? 0})
         </Link>
       </div>
 
@@ -105,6 +111,9 @@ export default function CfdProjectDetail() {
           </div>
         </div>
       )}
+
+      {/* Comments */}
+      <CommentSection type="cfd_project" id={data.id} />
     </div>
   )
 }

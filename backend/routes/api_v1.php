@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\V1\CfdProject\CfdProjectController;
 use App\Http\Controllers\Api\V1\Project\ProjectController;
 use App\Http\Controllers\Api\V1\Geometry\GeometryController;
 use App\Http\Controllers\Api\V1\Simulation\SimulationController;
+use App\Http\Controllers\Api\V1\Social\CommentController;
+use App\Http\Controllers\Api\V1\Social\LikeController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -19,6 +21,7 @@ Route::get('/cfd-projects/mine', [CfdProjectController::class, 'mine'])->middlew
 Route::get('/cfd-projects/{slug}', [CfdProjectController::class, 'show']);
 Route::get('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'index']);
 Route::get('/geometries', [GeometryController::class, 'all']);
+Route::get('/comments', [CommentController::class, 'index']);
 
 
 // Simulations (public read)
@@ -59,10 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/cfd-projects/{cfdProject}/geometries/{geometry}', [GeometryController::class, 'destroy']);
 
     // Social
-    // Route::post('/comments',          [CommentController::class, 'store']);
-    // Route::delete('/comments/{id}',   [CommentController::class, 'destroy']);
-    // Route::post('/likes',             [LikeController::class, 'toggle']);
-    // Route::post('/follow/{id}',       [FollowController::class, 'toggle']);
+    Route::post('/comments',             [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/likes',                [LikeController::class, 'toggle']);
 
     // // Admin only
     // Route::middleware('role:admin')->prefix('admin')->group(function () {

@@ -37,8 +37,8 @@ class CfdProjectRepository implements CfdProjectRepositoryInterface
             'user',
             'categories',
             'tags',
-            'geometries',
         ])
+            ->withCount('geometries')
             ->where('slug', $slug)
             ->firstOrFail();
     }

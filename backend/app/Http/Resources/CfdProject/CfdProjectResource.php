@@ -25,6 +25,7 @@ class CfdProjectResource extends JsonResource
             'turbulence_model' => $this->turbulence_model,
             'results_summary'  => $this->results_summary,
 
+            'geometries_count' => $this->geometries_count ?? 0,
 
             'author' => [
                 'id' => $this->user?->id,

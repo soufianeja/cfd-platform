@@ -85,7 +85,7 @@ export default function CfdProjectEdit() {
     setLoading(true)
     setErrors({})
     try {
-      const { data } = await api.put(`/cfd-projects/${project.id}`, form)
+      const { data } = await api.put(`/cfd-projects/${project.slug}`, form)
       navigate(`/cfd/${data.data.slug}`)
     } catch (err) {
       setErrors(err.response?.data?.errors || { general: 'Something went wrong.' })
@@ -98,7 +98,7 @@ export default function CfdProjectEdit() {
   if (!confirm('Are you sure you want to delete this project?')) return
 
   try {
-    const res = await api.delete(`/cfd-projects/${project.id}`)
+    const res = await api.delete(`/cfd-projects/${project.slug}`)
 
     if (res.status === 200 || res.status === 204) {
       navigate('/')
