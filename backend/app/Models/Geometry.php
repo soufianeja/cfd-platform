@@ -24,6 +24,11 @@ class Geometry extends Model
         return $this->belongsTo(CfdProject::class);
     }
 
+    public function simulations()
+    {
+        return $this->hasMany(Simulation::class)->latest();
+    }
+
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');

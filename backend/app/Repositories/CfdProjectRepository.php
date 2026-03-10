@@ -37,8 +37,6 @@ class CfdProjectRepository implements CfdProjectRepositoryInterface
             'user',
             'categories',
             'tags',
-            'simulations.images',
-            'simulations.metrics',
             'geometries',
         ])
             ->where('slug', $slug)

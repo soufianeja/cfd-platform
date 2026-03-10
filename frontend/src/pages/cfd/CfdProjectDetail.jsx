@@ -81,28 +81,17 @@ export default function CfdProjectDetail() {
         </div>
       )}
 
-      {/* Simulations */}
-      {data.simulations?.length > 0 && (
-        <div className="bg-white rounded-xl shadow p-8 mb-6">
-          <h2 className="text-xl font-bold mb-4">Simulations</h2>
-          {data.simulations.map((sim) => (
-            <div key={sim.id} className="border rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold">{sim.title}</h3>
-                <span className={`text-xs px-2 py-1 rounded-full ${sim.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                  }`}>{sim.status}</span>
-              </div>
-              {sim.images?.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {sim.images.map((img, i) => (
-                    <img key={i} src={img.path} alt={img.caption} className="rounded w-full object-cover h-40" />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Simulations — now per geometry */}
+      <div className="bg-white rounded-xl shadow p-8 mb-6">
+        <h2 className="text-xl font-bold mb-2">Simulations</h2>
+        <p className="text-gray-500 text-sm mb-4">Simulations are organised per geometry. Go to Geometries to view or create simulations.</p>
+        <Link
+          to={`/cfd/${data.slug}/geometries`}
+          className="inline-flex items-center gap-2 text-sm border px-4 py-2 rounded-lg hover:bg-gray-50"
+        >
+          📐 View Geometries & Simulations
+        </Link>
+      </div>
 
       {/* Author */}
       {data.author && (

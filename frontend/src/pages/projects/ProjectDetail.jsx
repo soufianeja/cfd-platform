@@ -1,20 +1,35 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import api from '../../api/axios'
 import useAuthStore from '../../store/authStore'
 
 export default function ProjectDetail() {
     const { slug } = useParams()
     const { user } = useAuthStore()
+    const [pdfBlobUrl, setPdfBlobUrl] = useState(null)
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['project', slug],
         queryFn: async () => {
             const { data } = await api.get(`/projects/${slug}`)
-            console.log(data)
             return data.data
         },
     })
+
+    // Fetch PDF as base64 via Axios — IDM doesn't intercept JSON responses
+    // The data URL is set directly as iframe src (no blob conversion needed)
+    useEffect(() => {
+        if (!data?.id || !data?.pdf_file) return
+        api.get(`/projects/${data.id}/pdf`)
+            .then(res => {
+                setPdfBlobUrl(res.data.data) // data:application/pdf;base64,...
+            })
+            .catch(err => {
+                console.error('PDF load error:', err)
+                setPdfBlobUrl(null)
+            })
+    }, [data?.id])
 
     if (isLoading) return <p className="p-8 text-gray-500">Loading...</p>
     if (isError) return <p className="p-8 text-red-500">Project not found.</p>
@@ -73,38 +88,61 @@ export default function ProjectDetail() {
             {data.pdf_file && (
                 <div className="bg-white rounded-xl shadow p-8 mb-6">
                     <h2 className="text-xl font-bold mb-4">Project Document</h2>
-                    <div className="aspect-[4/3] w-full mb-6 border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center relative">
-                        <embed
-                            src={`http://localhost:8000${data.pdf_file}#toolbar=0&navpanes=0&scrollbar=0`}
-                            type="application/pdf"
-                            className="w-full h-full"
-                        />
-                        {/* Fallback if embedding fails */}
-                        <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center p-4 text-center">
-                            <p className="text-gray-400 text-sm mb-4">
-                                If the PDF doesn't load, your browser might be blocking the preview.
-                            </p>
-                        </div>
+                    <div className="w-full mb-6 border rounded-lg overflow-hidden bg-gray-100" style={{ height: '600px' }}>
+                        {pdfBlobUrl ? (
+                            <iframe
+                                src={pdfBlobUrl}
+                                title="Project PDF"
+                                className="w-full h-full"
+                                style={{ border: 'none' }}
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                                Loading PDF preview...
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-wrap gap-4">
-                        <a
-                            href={`http://localhost:8000${data.pdf_file}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-indigo-600 font-medium hover:bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100 transition"
-                        >
-                            �️ View Fullscreen
-                        </a>
-                        <a
-                            href={`http://localhost:8000${data.pdf_file}`}
-                            download
-                            className="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium hover:bg-indigo-700 px-4 py-2 rounded-lg transition"
-                        >
-                            📥 Download PDF
-                        </a>
+                        {pdfBlobUrl && (
+                            <button
+                                onClick={() => {
+                                    // Browsers block new-tab navigation to data: URLs — convert to blob: first
+                                    fetch(pdfBlobUrl)
+                                        .then(r => r.blob())
+                                        .then(blob => {
+                                            const url = URL.createObjectURL(blob)
+                                            window.open(url, '_blank')
+                                        })
+                                }}
+                                className="inline-flex items-center gap-2 text-indigo-600 font-medium hover:bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100 transition"
+                            >
+                                🔍 View Fullscreen
+                            </button>
+                        )}
+                        {pdfBlobUrl && (
+                            <button
+                                onClick={() => {
+                                    fetch(pdfBlobUrl)
+                                        .then(r => r.blob())
+                                        .then(blob => {
+                                            const url = URL.createObjectURL(blob)
+                                            const a = document.createElement('a')
+                                            a.href = url
+                                            a.download = `${data.title || 'document'}.pdf`
+                                            a.click()
+                                            URL.revokeObjectURL(url)
+                                        })
+                                }}
+                                className="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium hover:bg-indigo-700 px-4 py-2 rounded-lg transition"
+                            >
+                                📥 Download PDF
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
+
+
 
             {/* Links */}
             {data.external_link && (

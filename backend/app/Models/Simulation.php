@@ -5,19 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-
 class Simulation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'cfd_project_id', 'title',
+        'geometry_id', 'title',
         'description', 'video_result', 'status',
     ];
 
-    public function cfdProject()
+    public function geometry()
     {
-        return $this->belongsTo(CfdProject::class);
+        return $this->belongsTo(Geometry::class);
     }
 
     public function images()

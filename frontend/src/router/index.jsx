@@ -13,6 +13,11 @@ import ProjectDetail from '../pages/projects/ProjectDetail'
 import ProjectCreate from '../pages/projects/ProjectCreate'
 import ProjectEdit from '../pages/projects/ProjectEdit'
 import CfdProjectGeometries from '../pages/cfd/CfdProjectGeometries'
+import GeometryStore from '../pages/geometries/GeometryStore'
+import SimulationList from '../pages/simulations/SimulationList'
+import SimulationCreate from '../pages/simulations/SimulationCreate'
+import SimulationDetail from '../pages/simulations/SimulationDetail'
+import SimulationEdit from '../pages/simulations/SimulationEdit'
 
 
 const router = createBrowserRouter([
@@ -43,6 +48,34 @@ const router = createBrowserRouter([
   {
     path: '/cfd/:slug/geometries',
     element: <Layout><CfdProjectGeometries /></Layout>,
+  },
+  {
+    path: '/geometries',
+    element: <Layout><GeometryStore /></Layout>,
+  },
+  {
+    path: '/cfd/:slug/geometries/:geometryId/simulations',
+    element: <Layout><SimulationList /></Layout>,
+  },
+  {
+    path: '/cfd/:slug/geometries/:geometryId/simulations/create',
+    element: (
+      <ProtectedRoute>
+        <Layout><SimulationCreate /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/cfd/:slug/geometries/:geometryId/simulations/:simulationId',
+    element: <Layout><SimulationDetail /></Layout>,
+  },
+  {
+    path: '/cfd/:slug/geometries/:geometryId/simulations/:simulationId/edit',
+    element: (
+      <ProtectedRoute>
+        <Layout><SimulationEdit /></Layout>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/projects',

@@ -248,19 +248,25 @@ export default function CfdProjectGeometries() {
                             </div>
 
                             <div className="flex items-center gap-2 mt-4">
+                                <Link
+                                    to={`/cfd/${slug}/geometries/${geo.id}/simulations`}
+                                    className="flex-1 text-center text-sm bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700"
+                                >
+                                    🔬 Simulations
+                                </Link>
                                 <a
                                     href={geo.geometry_file}
                                     download
-                                    className="flex-1 text-center text-sm border border-blue-300 text-blue-600 px-4 py-1.5 rounded-lg hover:bg-blue-50"
+                                    className="text-sm border border-blue-300 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-50"
                                 >
-                                    ⬇️ Download
+                                    ⬇️
                                 </a>
                                 {token && isOwner && (
                                     <button
                                         onClick={() => {
                                             if (confirm('Delete this geometry?')) deleteMutation.mutate(geo.id)
                                         }}
-                                        className="text-sm border border-red-200 text-red-500 px-4 py-1.5 rounded-lg hover:bg-red-50"
+                                        className="text-sm border border-red-200 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-50"
                                     >
                                         🗑️
                                     </button>

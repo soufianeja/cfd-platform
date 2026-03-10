@@ -51,11 +51,6 @@ class CfdProject extends Model
         return $this->hasMany(Geometry::class);
     }
 
-    public function simulations()
-    {
-        return $this->hasMany(Simulation::class);
-    }
-
     public function categories()
     {
         return $this->morphToMany(Category::class, 'categorizable');

@@ -29,6 +29,34 @@ class GeometryController extends Controller
         ]);
     }
 
+    /**
+     * Public geometry store — all geometries across all projects.
+     */
+    public function all(Request $request): JsonResponse
+    {
+        $query = Geometry::with('cfdProject')
+            ->orderBy('created_at', 'desc');
+
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($type = $request->query('type')) {
+            $query->where('file_type', $type);
+        }
+
+        $geometries = $query->paginate(18);
+
+        return response()->json([
+            'data' => GeometryResource::collection($geometries),
+            'meta' => [
+                'total'        => $geometries->total(),
+                'current_page' => $geometries->currentPage(),
+                'last_page'    => $geometries->lastPage(),
+            ],
+        ]);
+    }
+
     public function store(StoreGeometryRequest $request, CfdProject $cfdProject): JsonResponse
     {
         $this->authorize('update', $cfdProject);

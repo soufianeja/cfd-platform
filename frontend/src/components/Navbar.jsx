@@ -21,6 +21,7 @@ export default function Navbar() {
         <Link to="/" className="text-xl font-bold text-blue-600">CFD Platform</Link>
         <div className="flex items-center gap-4">
           <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">CFD Projects</Link>
+          <Link to="/geometries" className="text-sm text-gray-600 hover:text-blue-600">Geometry Store</Link>
           <Link to="/projects" className="text-sm text-gray-600 hover:text-indigo-600">Academic Projects</Link>
           {token ? (
             <>

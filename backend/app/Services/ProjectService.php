@@ -56,10 +56,16 @@ class ProjectService
         return $project;
     }                                                   
 
-    public function update(Project $project, array $data): Project
+    public function update(Project $project, array $data, $file = null): Project
     {
         if (isset($data['title']) && $data['title'] !== $project->title) {
             $data['slug'] = Str::slug($data['title']) . '-' . Str::random(6);
+        }
+
+        // 👇 Ajout du PDF update
+        if ($file) {
+            // Optional: You could delete the old file here if needed using Storage::disk('public')->delete($project->pdf_file)
+            $data['pdf_file'] = $file->store('projects/pdfs', 'public');
         }
 
         $project = $this->repository->update($project, $data);

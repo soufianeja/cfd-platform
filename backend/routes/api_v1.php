@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\CfdProject\CfdProjectController;
 use App\Http\Controllers\Api\V1\Project\ProjectController;
 use App\Http\Controllers\Api\V1\Geometry\GeometryController;
+use App\Http\Controllers\Api\V1\Simulation\SimulationController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -17,10 +18,17 @@ Route::get('/cfd-projects', [CfdProjectController::class, 'index']);
 Route::get('/cfd-projects/mine', [CfdProjectController::class, 'mine'])->middleware('auth:sanctum');
 Route::get('/cfd-projects/{slug}', [CfdProjectController::class, 'show']);
 Route::get('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'index']);
+Route::get('/geometries', [GeometryController::class, 'all']);
+
+
+// Simulations (public read)
+Route::get('/geometries/{geometry}/simulations', [SimulationController::class, 'index']);
+Route::get('/geometries/{geometry}/simulations/{simulation}', [SimulationController::class, 'show']);
 
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/mine', [ProjectController::class, 'mine'])->middleware('auth:sanctum');
 Route::get('/projects/{slug}', [ProjectController::class, 'show']);
+Route::get('/projects/{id}/pdf', [ProjectController::class, 'servePdf']);
 
 
 // Protected routes
@@ -40,6 +48,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Geometries
     Route::post('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'store']);
+
+    // Simulations (write)
+    Route::post('/geometries/{geometry}/simulations', [SimulationController::class, 'store']);
+    Route::post('/geometries/{geometry}/simulations/{simulation}', [SimulationController::class, 'update']);
+    Route::delete('/geometries/{geometry}/simulations/{simulation}', [SimulationController::class, 'destroy']);
+    Route::post('/geometries/{geometry}/simulations/{simulation}/metrics', [SimulationController::class, 'storeMetrics']);
+    Route::post('/geometries/{geometry}/simulations/{simulation}/images', [SimulationController::class, 'storeImage']);
+    Route::delete('/geometries/{geometry}/simulations/{simulation}/images/{imageId}', [SimulationController::class, 'destroyImage']);
     Route::delete('/cfd-projects/{cfdProject}/geometries/{geometry}', [GeometryController::class, 'destroy']);
 
     // Social

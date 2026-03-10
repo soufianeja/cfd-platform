@@ -10,6 +10,7 @@ use App\Services\ProjectService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -72,7 +73,11 @@ class ProjectController extends Controller
     public function update(StoreProjectRequest $request, Project $project): JsonResponse
     {
         $this->authorize('update', $project);
-        $updatedProject = $this->service->update($project, $request->validated());
+        $updatedProject = $this->service->update(
+            $project,
+            $request->validated(),
+            $request->file('pdf_file')
+        );
 
         return response()->json([
             'message' => 'Project updated successfully.',
@@ -86,5 +91,28 @@ class ProjectController extends Controller
         $this->service->delete($project);
 
         return response()->json(['message' => 'Project deleted successfully.']);
+    }
+
+    public function servePdf(Request $request, int $id)
+    {
+        $project = Project::findOrFail($id);
+
+        if (!$project->pdf_file) {
+            abort(404, 'No PDF attached to this project.');
+        }
+
+        if (!Storage::disk('public')->exists($project->pdf_file)) {
+            abort(404, 'PDF file not found on disk.');
+        }
+
+        // Return as base64 JSON to avoid IDM/browser interception of binary PDF responses
+        $content  = Storage::disk('public')->get($project->pdf_file);
+        $base64   = base64_encode($content);
+        $filename = basename($project->pdf_file);
+
+        return response()->json([
+            'data'     => 'data:application/pdf;base64,' . $base64,
+            'filename' => $filename,
+        ]);
     }
 }

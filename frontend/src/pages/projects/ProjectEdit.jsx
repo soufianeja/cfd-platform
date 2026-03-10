@@ -67,18 +67,31 @@ export default function ProjectEdit() {
                 publication_year: project.publication_year ?? '',
                 external_link: project.external_link ?? '',
                 status: project.status,
+                pdf_file: null,
             })
         }
     }, [project])
 
     const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
+    const handleFile = (e) => setForm({ ...form, pdf_file: e.target.files[0] })
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         setErrors({})
         try {
-            const { data } = await api.put(`/projects/${project.id}`, form)
+            const formData = new FormData()
+            Object.entries(form).forEach(([key, value]) => {
+                if (value !== null && value !== '') {
+                    formData.append(key, value)
+                }
+            })
+            // Use PUT spoofing for Laravel
+            formData.append('_method', 'PUT')
+
+            const { data } = await api.post(`/projects/${project.id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
             navigate(`/projects/${data.data.slug}`)
         } catch (err) {
             setErrors(err.response?.data?.errors || { general: 'Something went wrong.' })
@@ -144,6 +157,26 @@ export default function ProjectEdit() {
                         <Field label="Publication Year" field="publication_year" type="number" value={form.publication_year} onChange={set('publication_year')} error={errors.publication_year} />
                         <div className="md:col-span-2">
                             <Field label="External Link (URL)" field="external_link" type="url" value={form.external_link} onChange={set('external_link')} error={errors.external_link} />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Update PDF File (optional)
+                            </label>
+                            <input
+                                type="file"
+                                accept=".pdf"
+                                onChange={handleFile}
+                                className="w-full border rounded-lg px-4 py-2 text-sm text-gray-500 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            />
+                            {project?.pdf_file && !form.pdf_file && (
+                                <p className="text-xs text-indigo-600 mt-1">
+                                    Current: <a href={`http://localhost:8000${project.pdf_file}`} target="_blank" rel="noreferrer" className="underline font-medium">View PDF</a>
+                                </p>
+                            )}
+                            {form.pdf_file && (
+                                <p className="text-xs text-green-600 mt-1">✅ New file selected: {form.pdf_file.name}</p>
+                            )}
+                            {errors.pdf_file && <p className="text-red-500 text-xs mt-1">{errors.pdf_file[0]}</p>}
                         </div>
                     </div>
                 </div>

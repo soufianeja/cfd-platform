@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('simulations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cfd_project_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('geometry_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('video_result')->nullable();
             $table->enum('status', ['pending', 'running', 'completed', 'failed'])
-                    ->default('completed');
+                ->default('completed');
             $table->timestamps();
 
-            $table->index('cfd_project_id');
+            $table->index('geometry_id');
         });
     }
 
