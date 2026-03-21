@@ -44,7 +44,7 @@ export default function CfdProjectDetail() {
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-3xl font-bold">{data.title}</h1>
           <div className="flex items-center gap-2">
-            <LikeButton type="cfd_project" id={data.id} />
+            <LikeButton type="cfd_project" id={data.id} initialCount={data.likes_count ?? 0} />
             {user?.id === data.author?.id && (
               <Link
                 to={`/cfd/${data.slug}/edit`}
@@ -101,15 +101,18 @@ export default function CfdProjectDetail() {
 
       {/* Author */}
       {data.author && (
-        <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4">
+        <Link
+          to={`/users/${data.author.id}`}
+          className="bg-white rounded-xl shadow p-6 flex items-center gap-4 hover:shadow-md transition mb-6"
+        >
           <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
             {data.author.name[0]}
           </div>
           <div>
             <p className="font-semibold">{data.author.name}</p>
-            <p className="text-sm text-gray-400">Researcher</p>
+            <p className="text-sm text-gray-400">View profile →</p>
           </div>
-        </div>
+        </Link>
       )}
 
       {/* Comments */}

@@ -38,7 +38,6 @@ class CfdProjectService
     {
         $data['user_id'] = $user->id;
         $data['slug'] = Str::slug($data['title']) . '-' . Str::random(6);
-        $data['status'] = 'draft';
 
         $project = $this->repository->create($data);
 
@@ -92,8 +91,8 @@ class CfdProjectService
         return $this->repository->update($cfdProject, $data);
     }
 
-    public function delete(CfdProject $cfdProject): bool
+    public function delete(CfdProject $cfdProject): void
     {
-        return $this->repository->delete($cfdProject);
+        $this->repository->delete($cfdProject);
     }
 }

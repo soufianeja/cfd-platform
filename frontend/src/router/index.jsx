@@ -18,7 +18,7 @@ import SimulationList from '../pages/simulations/SimulationList'
 import SimulationCreate from '../pages/simulations/SimulationCreate'
 import SimulationDetail from '../pages/simulations/SimulationDetail'
 import SimulationEdit from '../pages/simulations/SimulationEdit'
-
+import UserProfile from '../pages/users/UserProfile'
 
 const router = createBrowserRouter([
   {
@@ -108,6 +108,10 @@ const router = createBrowserRouter([
         <Layout><Profile /></Layout>
       </ProtectedRoute>
     ),
+  },
+  {
+    path: '/users/:id',
+    element: <Layout><UserProfile /></Layout>,
   },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },

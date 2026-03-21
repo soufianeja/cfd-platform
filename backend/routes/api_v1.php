@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Geometry\GeometryController;
 use App\Http\Controllers\Api\V1\Simulation\SimulationController;
 use App\Http\Controllers\Api\V1\Social\CommentController;
 use App\Http\Controllers\Api\V1\Social\LikeController;
+use App\Http\Controllers\Api\V1\User\UserController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -22,6 +23,11 @@ Route::get('/cfd-projects/{slug}', [CfdProjectController::class, 'show']);
 Route::get('/cfd-projects/{cfdProject}/geometries', [GeometryController::class, 'index']);
 Route::get('/geometries', [GeometryController::class, 'all']);
 Route::get('/comments', [CommentController::class, 'index']);
+
+// Users (public read)
+Route::get('/users/{user}', [UserController::class, 'show']);
+Route::get('/users/{user}/cfd-projects', [UserController::class, 'cfdProjects']);
+Route::get('/users/{user}/projects', [UserController::class, 'projects']);
 
 
 // Simulations (public read)
@@ -42,8 +48,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     // CFD Projects
-    Route::apiResource('cfd-projects', CfdProjectController::class)
-        ->except(['index', 'show']);
+    Route::post('/cfd-projects', [CfdProjectController::class, 'store']);
+    Route::put('/cfd-projects/{cfdProject}', [CfdProjectController::class, 'update']);
+    Route::patch('/cfd-projects/{cfdProject}', [CfdProjectController::class, 'update']);
+    Route::delete('/cfd-projects/{cfdProject}', [CfdProjectController::class, 'destroy']);
 
     // Projects
     Route::apiResource('projects', ProjectController::class)
@@ -65,6 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/comments',             [CommentController::class, 'store']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
     Route::post('/likes',                [LikeController::class, 'toggle']);
+    Route::post('/users/{user}/follow',  [UserController::class, 'follow']);
 
     // // Admin only
     // Route::middleware('role:admin')->prefix('admin')->group(function () {
