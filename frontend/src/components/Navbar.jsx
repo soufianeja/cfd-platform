@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import api from '../api/axios'
+import SearchBar from './SearchBar'
 
 export default function Navbar() {
   const { user, token, logout } = useAuthStore()
@@ -18,8 +19,11 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold text-blue-600">CFD Platform</Link>
-        <div className="flex items-center gap-4">
+        <Link to="/" className="text-xl font-bold text-blue-600 shrink-0">CFD Platform</Link>
+        <div className="flex-1 flex justify-center max-w-lg hidden md:flex">
+          <SearchBar />
+        </div>
+        <div className="flex items-center gap-4 shrink-0">
           <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">CFD Projects</Link>
           <Link to="/geometries" className="text-sm text-gray-600 hover:text-blue-600">Geometry Store</Link>
           <Link to="/projects" className="text-sm text-gray-600 hover:text-indigo-600">Academic Projects</Link>
