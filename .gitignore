@@ -1,0 +1,30 @@
+# Python
+ml-service/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node
+node_modules/
+dist/
+.env
+
+# Backend (Laravel)
+backend/.env
+backend/vendor/
+backend/storage/*.key
+backend/public/storage
+backend/public/hot
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+
+# Frontend (React)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Misc
+.DS_Store
+Thumbs.db

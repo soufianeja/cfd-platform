@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\V1\Simulation\SimulationController;
 use App\Http\Controllers\Api\V1\Social\CommentController;
 use App\Http\Controllers\Api\V1\Social\LikeController;
 use App\Http\Controllers\Api\V1\User\UserController;
+use App\Http\Controllers\Api\V1\Search\SearchController;
+
+// Search
+Route::get('/search', [SearchController::class, 'index']);
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
