@@ -3,6 +3,8 @@ ml-service/venv/
 __pycache__/
 *.py[cod]
 *$py.class
+ML_LEARNING_GUIDE.md
+ML_IMPLEMENTATION_PLAN.md
 
 # Node
 node_modules/
