@@ -4,8 +4,8 @@ from typing import List
 
 class Settings(BaseSettings):
     APP_ENV: str = "development"
-    APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 8000
+    APP_HOST: str = "[IP_ADDRESS]"
+    APP_PORT: int = 9000
 
     ALLOWED_ORIGINS: List[str] = ["http://localhost:8080", "http://localhost:3000"]
 
