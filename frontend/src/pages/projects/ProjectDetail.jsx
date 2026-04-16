@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import api from '../../api/axios'
 import useAuthStore from '../../store/authStore'
+import LikeButton from '../../components/LikeButton'    
+import CommentSection from '../../components/CommentSection'
 
 export default function ProjectDetail() {
     const { slug } = useParams()
@@ -58,14 +60,17 @@ export default function ProjectDetail() {
                 </div>
                 <div className="flex items-start justify-between mb-4">
                     <h1 className="text-3xl font-bold">{data.title}</h1>
-                    {user?.id === data.user?.id && (
-                        <Link
+                    <div className="flex items-center gap-2">
+                                <LikeButton type="project" id={data.id} initialCount={data.likes_count ?? 0} />
+                                {user?.id === data.author?.id && (
+                                  <Link
                             to={`/projects/${data.slug}/edit`}
                             className="text-sm bg-gray-50 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg hover:bg-indigo-50 transition"
                         >
                             ✏️ Edit Project
                         </Link>
-                    )}
+                                )}
+                              </div>
                 </div>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{data.description}</p>
             </div>
@@ -160,17 +165,23 @@ export default function ProjectDetail() {
             )}
 
             {/* Author */}
-            {data.user && (
-                <div className="bg-white rounded-xl shadow p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
-                        {data.user.name[0]}
-                    </div>
-                    <div>
-                        <p className="font-semibold">{data.user.name}</p>
-                        <p className="text-sm text-gray-400">Project Author</p>
-                    </div>
+            {data.author && (
+                <Link
+                to={`/users/${data.author.id}`}
+                className="bg-white rounded-xl shadow p-6 flex items-center gap-4 hover:shadow-md transition mb-6"
+                >
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
+                    {data.author.name[0]}
                 </div>
+                <div>
+                    <p className="font-semibold">{data.author.name}</p>
+                    <p className="text-sm text-gray-400">View profile →</p>
+                </div>
+                </Link>
             )}
+                  {/* Comments */}
+                  <CommentSection type="project" id={data.id} />
+            
         </div>
     )
 }

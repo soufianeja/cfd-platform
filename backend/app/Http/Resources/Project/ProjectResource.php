@@ -11,7 +11,8 @@ class ProjectResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user' => $this->whenLoaded('user'),
+            'author' => $this->whenLoaded('user'),
+            'likes_count' => $this->likes_count ?? 0,
             'title' => $this->title,
             'slug' => $this->slug,
             'description' => $this->description,
