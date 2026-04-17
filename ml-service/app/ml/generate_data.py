@@ -311,6 +311,78 @@ def calculate_cd(geo_type, params):
     return round(cd, 5)
 
 
+def calculate_cl(geo_type, params):
+    """
+    Calculate a realistic lift coefficient (Cl) based on geometry type and parameters.
+
+    Physics notes:
+      - Airfoils: Cl ≈ 2π·α (thin airfoil theory, linearized)
+      - FSAE race cars: negative Cl (downforce from wings)
+      - Symmetric bodies (sphere, cylinder): Cl ≈ 0
+      - Road vehicles: slight positive lift at speed
+    """
+    slant_angle = params["slant_angle"]
+    rear_wing_angle = params["rear_wing_angle"]
+    velocity = params["velocity"]
+    frontal_area = params["frontal_area"]
+
+    cl = 0.0
+
+    if geo_type == "airfoil":
+        # Thin airfoil theory: Cl = 2π·sin(α) ≈ 2π·α (for small α in radians)
+        aoa_rad = math.radians(slant_angle)  # angle of attack stored in slant_angle
+        cl = 2.0 * math.pi * math.sin(aoa_rad)
+        # Above ~12° stall begins → Cl drops
+        if slant_angle > 12:
+            cl *= max(0.5, 1.0 - 0.08 * (slant_angle - 12))
+
+    elif geo_type == "fsae":
+        # Downforce (negative lift) from rear wing
+        # More wing angle → more downforce
+        cl = -1.5 - 0.04 * rear_wing_angle  # range: ~-2.1 to -3.3
+        # Larger frontal area → slightly more downforce
+        cl -= 0.15 * (frontal_area - 1.3)
+
+    elif geo_type == "sedan":
+        # Slight positive lift, increases with speed
+        cl = 0.10 + 0.004 * (velocity - 30)
+        # Trunk slant affects rear lift
+        cl += 0.005 * slant_angle
+
+    elif geo_type == "suv":
+        # Boxy shape generates some lift
+        cl = 0.15 + 0.003 * (velocity - 30)
+
+    elif geo_type == "truck":
+        # Minimal lift on a flat-topped truck
+        cl = 0.08 + random.uniform(-0.02, 0.02)
+
+    elif geo_type in ("cylinder", "sphere", "flat_plate"):
+        # Symmetric bodies → no net lift, just noise
+        cl = random.gauss(0.0, 0.005)
+
+    elif geo_type == "ahmed_body":
+        # Low lift, slight effect from slant angle
+        cl = 0.02 + 0.003 * slant_angle
+        if slant_angle > 30:
+            cl -= 0.002 * (slant_angle - 30)  # separation reduces lift generation
+
+    elif geo_type == "wedge":
+        # Wedge can generate lift depending on half-angle
+        cl = 0.05 + 0.005 * slant_angle
+
+    # Velocity effect (mild)
+    if velocity > 60:
+        mach_approx = velocity / 343.0
+        cl *= (1.0 + 0.3 * mach_approx ** 2)
+
+    # Random noise (CFD solver variability)
+    noise = random.gauss(0, max(0.01, 0.03 * abs(cl)))
+    cl += noise
+
+    return round(cl, 5)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # DATASET GENERATOR
 # ──────────────────────────────────────────────────────────────────────────────
@@ -326,7 +398,7 @@ def generate_dataset(output_path="datasets/dataset.csv", num_samples=2000):
     headers = [
         "geometry_type", "surface_area", "volume", "frontal_area",
         "length", "width", "height", "rear_wing_angle", "slant_angle",
-        "velocity", "reynolds", "drag"
+        "velocity", "reynolds", "drag", "lift"
     ]
 
     rows = []
@@ -381,13 +453,14 @@ def generate_dataset(output_path="datasets/dataset.csv", num_samples=2000):
             "reynolds": reynolds,
         }
 
-        # Calculate drag coefficient
+        # Calculate drag and lift coefficients
         cd = calculate_cd(geo_type, params)
+        cl = calculate_cl(geo_type, params)
 
         rows.append([
             geo_type, surface_area, volume, frontal_area,
             length, width, height, rear_wing_angle, slant_angle,
-            velocity, reynolds, cd
+            velocity, reynolds, cd, cl
         ])
 
     # Shuffle so geometry types are mixed
@@ -410,15 +483,19 @@ def generate_dataset(output_path="datasets/dataset.csv", num_samples=2000):
     from collections import Counter, defaultdict
     type_counts = Counter(row[0] for row in rows)
     type_drags = defaultdict(list)
+    type_lifts = defaultdict(list)
     for row in rows:
-        type_drags[row[0]].append(row[-1])
+        type_drags[row[0]].append(row[-2])  # drag is second-to-last
+        type_lifts[row[0]].append(row[-1])  # lift is last
 
-    print(f"\n  {'Geometry':<14} {'Count':>6}   {'Cd min':>8} {'Cd mean':>8} {'Cd max':>8}")
-    print(f"  {'-'*14} {'-'*6}   {'-'*8} {'-'*8} {'-'*8}")
+    print(f"\n  {'Geometry':<14} {'Count':>6}   {'Cd min':>8} {'Cd mean':>8} {'Cd max':>8}   {'Cl min':>8} {'Cl mean':>8} {'Cl max':>8}")
+    print(f"  {'-'*14} {'-'*6}   {'-'*8} {'-'*8} {'-'*8}   {'-'*8} {'-'*8} {'-'*8}")
     for geo in sorted(type_counts.keys()):
         drags = type_drags[geo]
+        lifts = type_lifts[geo]
         print(f"  {geo:<14} {type_counts[geo]:>6}   "
-              f"{min(drags):>8.4f} {sum(drags)/len(drags):>8.4f} {max(drags):>8.4f}")
+              f"{min(drags):>8.4f} {sum(drags)/len(drags):>8.4f} {max(drags):>8.4f}   "
+              f"{min(lifts):>8.4f} {sum(lifts)/len(lifts):>8.4f} {max(lifts):>8.4f}")
 
     print()
     return output_path

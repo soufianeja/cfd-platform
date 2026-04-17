@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from app.ml.predict import predict_drag
+from app.ml.predict import predict_drag_and_lift
 
 router = APIRouter()
 
@@ -19,8 +19,9 @@ class PredictionRequest(BaseModel):
 
 class PredictionResponse(BaseModel):
     drag_coefficient: float
+    lift_coefficient: float
     geometry_type: str
-    model_version: str = "1.0"
+    model_version: str = "2.0"
 
 @router.get("/", tags=["Predictions"])
 async def list_predictions():
@@ -29,13 +30,13 @@ async def list_predictions():
 
 @router.post("/", response_model=PredictionResponse, tags=["Predictions"])
 async def create_prediction(request: PredictionRequest):
-    """Predict drag coefficient from geometry features and simulation parameters"""
+    """Predict drag coefficient (Cd) and lift coefficient (Cl) from geometry features"""
     try:
-        cd = predict_drag(**request.model_dump())
+        result = predict_drag_and_lift(**request.model_dump())
         return PredictionResponse(
-            drag_coefficient=round(cd, 5),
+            drag_coefficient=round(result["drag_coefficient"], 5),
+            lift_coefficient=round(result["lift_coefficient"], 5),
             geometry_type=request.geometry_type,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
