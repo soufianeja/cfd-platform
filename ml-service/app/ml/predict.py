@@ -1,37 +1,62 @@
 import joblib
 import pandas as pd
 
-MODEL_PATH = "models/cfd_model.pkl"
+CD_MODEL_PATH = "models/cd_model.pkl"
+CL_MODEL_PATH = "models/cl_model.pkl"
 ENCODER_PATH = "models/encoder.pkl"
 
-# load model and encoder
-model = joblib.load(MODEL_PATH)
+# load models and encoder
+cd_model = joblib.load(CD_MODEL_PATH)
+cl_model = joblib.load(CL_MODEL_PATH)
 encoder = joblib.load(ENCODER_PATH)
 
-# define the prediction function
-def predict_drag(geometry_type,length,width,height,reynolds,velocity,frontal_area,surface_area,volume,slant_angle,rear_wing_angle):
-    # create a dataframe from the input data
+def _prepare_input(geometry_type, length, width, height, reynolds, velocity,
+                   frontal_area, surface_area, volume, slant_angle, rear_wing_angle):
+    """Create a preprocessed DataFrame from raw input parameters."""
     input_data = pd.DataFrame({
-        "geometry_type":[geometry_type],
-        "surface_area":[surface_area],
-        "volume":[volume],
-        "frontal_area":[frontal_area],
-        "length":[length],
-        "width":[width],
-        "height":[height],
-        "rear_wing_angle":[rear_wing_angle],
-        "slant_angle":[slant_angle],
-        "velocity":[velocity],
-        "reynolds":[reynolds]
+        "geometry_type": [geometry_type],
+        "surface_area": [surface_area],
+        "volume": [volume],
+        "frontal_area": [frontal_area],
+        "length": [length],
+        "width": [width],
+        "height": [height],
+        "rear_wing_angle": [rear_wing_angle],
+        "slant_angle": [slant_angle],
+        "velocity": [velocity],
+        "reynolds": [reynolds]
     })
-    
-    # preprocess the input data
+
+    # encode geometry type
     input_data["geometry_type"] = encoder.transform(input_data["geometry_type"])
-    
-    # make the prediction
-    prediction = model.predict(input_data)
-    
+
+    return input_data
+
+
+# define the prediction function (kept for backward compatibility)
+def predict_drag(geometry_type, length, width, height, reynolds, velocity,
+                 frontal_area, surface_area, volume, slant_angle, rear_wing_angle):
+    """Predict drag coefficient (Cd) only."""
+    input_data = _prepare_input(
+        geometry_type, length, width, height, reynolds, velocity,
+        frontal_area, surface_area, volume, slant_angle, rear_wing_angle
+    )
+    prediction = cd_model.predict(input_data)
     return prediction[0]
+
+
+# predict both Cd and Cl
+def predict_drag_and_lift(geometry_type, length, width, height, reynolds, velocity,
+                          frontal_area, surface_area, volume, slant_angle, rear_wing_angle):
+    """Predict both drag coefficient (Cd) and lift coefficient (Cl)."""
+    input_data = _prepare_input(
+        geometry_type, length, width, height, reynolds, velocity,
+        frontal_area, surface_area, volume, slant_angle, rear_wing_angle
+    )
+    cd = cd_model.predict(input_data)[0]
+    cl = cl_model.predict(input_data)[0]
+    return {"drag_coefficient": cd, "lift_coefficient": cl}
+
 
 # example usage
 if __name__ == "__main__":
@@ -47,8 +72,14 @@ if __name__ == "__main__":
         {"geometry_type": "sphere", "surface_area": 3.14, "volume": 0.52,
          "frontal_area": 0.785, "length": 0.5, "width": 0.5, "height": 0.5,
          "rear_wing_angle": 0, "slant_angle": 0, "velocity": 25, "reynolds": 800000},
+
+        {"geometry_type": "airfoil", "surface_area": 2.0, "volume": 0.1,
+         "frontal_area": 0.08, "length": 1.0, "width": 1.0, "height": 0.12,
+         "rear_wing_angle": 0, "slant_angle": 5, "velocity": 40, "reynolds": 2600000},
     ]
 
+    print(f"\n{'Geometry':>12s}   {'Cd':>8s}   {'Cl':>8s}")
+    print(f"{'-'*12:>12s}   {'-'*8:>8s}   {'-'*8:>8s}")
     for tc in test_cases:
-        cd = predict_drag(**tc)
-        print(f"  {tc['geometry_type']:12s} -> Cd = {cd:.4f}")
+        result = predict_drag_and_lift(**tc)
+        print(f"  {tc['geometry_type']:12s} -> Cd = {result['drag_coefficient']:.4f}   Cl = {result['lift_coefficient']:.4f}")
