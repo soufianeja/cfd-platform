@@ -12,9 +12,13 @@ use App\Http\Controllers\Api\V1\Social\CommentController;
 use App\Http\Controllers\Api\V1\Social\LikeController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\Search\SearchController;
+use App\Http\Controllers\Api\V1\Ml\MlPredictionController;
 
 // Search
 Route::get('/search', [SearchController::class, 'index']);
+
+// ML Service (public status)
+Route::get('/ml/status', [MlPredictionController::class, 'trainingStatus']);
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -50,6 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // ML Predictions (proxied securely through Laravel)
+    Route::post('/ml/predict', [MlPredictionController::class, 'predict']);
+    Route::post('/ml/extract', [MlPredictionController::class, 'extract']);
 
     // CFD Projects
     Route::post('/cfd-projects', [CfdProjectController::class, 'store']);

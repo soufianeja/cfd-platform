@@ -15,11 +15,11 @@ Each step builds on the previous one and must be completed in order.
 | 2.1 | Cd + Cl dataset generation | Easy | ✅ DONE |
 | 2.2 | Train two models (Cd & Cl) | Easy | ✅ DONE |
 | 2.3 | Update predict endpoint (Cd + Cl) | Easy | ✅ DONE |
-| 2.4 | Add `/train` API endpoint | Medium | ⬜ TODO |
-| 2.5 | STL feature extraction (trimesh) | Medium | ⬜ TODO |
-| 2.6 | Laravel backend integration | Medium | ⬜ TODO |
-| 2.7 | Frontend prediction UI | Medium | ⬜ TODO |
-| 2.8 | Model tuning & comparison | Easy | ⬜ TODO |
+| 2.4 | Add `/train` API endpoint | Medium | ✅ DONE |
+| 2.5 | STL feature extraction (trimesh) | Medium | ✅ DONE |
+| 2.6 | Laravel backend integration | Medium | ✅ DONE |
+| 2.7 | Frontend prediction UI | Medium | ✅ DONE |
+| 2.8 | Model tuning & comparison | Easy | ✅ DONE |
 
 ---
 
