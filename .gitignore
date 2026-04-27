@@ -6,6 +6,11 @@ __pycache__/
 ML_LEARNING_GUIDE.md
 ML_IMPLEMENTATION_PLAN.md
 
+# ML — generated artifacts (too large for git, regenerate locally)
+ml-service/models/*.pkl
+ml-service/models/best_params.json
+ml-service/datasets/*.csv
+
 # Node
 node_modules/
 dist/
