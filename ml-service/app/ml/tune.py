@@ -101,7 +101,7 @@ def compare_models(X_train, X_test, y_cd_train, y_cd_test, y_cl_train, y_cl_test
         }
 
     best_name = max(results, key=lambda n: results[n]["cd_r2"])
-    print(f"\n  → Best model for Cd: {best_name}  (R²={results[best_name]['cd_r2']:.4f})")
+    print(f"\n  -> Best model for Cd: {best_name}  (R2={results[best_name]['cd_r2']:.4f})")
     return results
 
 
@@ -124,7 +124,7 @@ def tune_hyperparameters(X_train, X_test, y_cd_train, y_cd_test, y_cl_train, y_c
     cd_r2  = r2_score(y_cd_test, gs_cd.best_estimator_.predict(X_test))
     cd_mae = mean_absolute_error(y_cd_test, gs_cd.best_estimator_.predict(X_test))
     print(f"       Best params : {cd_best_params}")
-    print(f"       Test  R²    : {cd_r2:.4f}   MAE: {cd_mae:.4f}")
+    print(f"       Test  R2    : {cd_r2:.4f}   MAE: {cd_mae:.4f}")
 
     # ── Cl model ──
     print("\n  [2/2] Tuning Cl model (lift coefficient)...")
@@ -137,7 +137,7 @@ def tune_hyperparameters(X_train, X_test, y_cd_train, y_cd_test, y_cl_train, y_c
     cl_r2  = r2_score(y_cl_test, gs_cl.best_estimator_.predict(X_test))
     cl_mae = mean_absolute_error(y_cl_test, gs_cl.best_estimator_.predict(X_test))
     print(f"       Best params : {cl_best_params}")
-    print(f"       Test  R²    : {cl_r2:.4f}   MAE: {cl_mae:.4f}")
+    print(f"       Test  R2    : {cl_r2:.4f}   MAE: {cl_mae:.4f}")
 
     return gs_cd.best_estimator_, gs_cl.best_estimator_, cd_best_params, cl_best_params
 
@@ -158,9 +158,9 @@ def save_results(cd_model, cl_model, cd_best_params, cl_best_params):
     print("\n" + "=" * 76)
     print("  RESULTS SAVED")
     print("=" * 76)
-    print(f"  ✓  {CD_MODEL_PATH:<35} ← best Cd model (tuned RandomForest)")
-    print(f"  ✓  {CL_MODEL_PATH:<35} ← best Cl model (tuned RandomForest)")
-    print(f"  ✓  {BEST_PARAMS_PATH:<35} ← params picked up by train.py")
+    print(f"  [OK] {CD_MODEL_PATH:<35} <- best Cd model (tuned RandomForest)")
+    print(f"  [OK] {CL_MODEL_PATH:<35} <- best Cl model (tuned RandomForest)")
+    print(f"  [OK] {BEST_PARAMS_PATH:<35} <- params picked up by train.py")
     print()
 
 
