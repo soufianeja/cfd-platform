@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["http://localhost:8080", "http://localhost:3000"]
 
     MODEL_DIR: str = "./models"
+    TRAINING_API_KEY: str = "your-secret-key-here"
 
     class Config:
         env_file = ".env"

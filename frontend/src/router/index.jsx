@@ -20,6 +20,7 @@ import SimulationDetail from '../pages/simulations/SimulationDetail'
 import SimulationEdit from '../pages/simulations/SimulationEdit'
 import UserProfile from '../pages/users/UserProfile'
 import Search from '../pages/Search'
+import PredictPage from '../pages/ml/PredictPage'
 
 const router = createBrowserRouter([
   {
@@ -117,6 +118,7 @@ const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
   { path: '/search', element: <Layout><Search /></Layout> },
+  { path: '/predict', element: <Layout><PredictPage /></Layout> },
 ])
 
 export default router
