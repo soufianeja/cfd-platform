@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Social\LikeController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use App\Http\Controllers\Api\V1\Search\SearchController;
 use App\Http\Controllers\Api\V1\Ml\MlPredictionController;
+use App\Http\Controllers\Api\V1\Review\ReviewController;
 
 // Search
 Route::get('/search', [SearchController::class, 'index']);
@@ -91,13 +92,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin only
     Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::get('/users',           [UserController::class, 'index']);
+        Route::get('/users',            [UserController::class, 'index']);
         Route::patch('/users/{id}/ban', [UserController::class, 'ban']);
+        Route::patch('/users/{id}/role',[UserController::class, 'changeRole']);
     });
 
-    // // Reviewer only
-    // Route::middleware('role:reviewer')->prefix('reviews')->group(function () {
-    //     Route::get('/',                [ReviewController::class, 'index']);
-    //     Route::patch('/{id}',          [ReviewController::class, 'update']);
-    // });
+    // Reviewer only
+    Route::middleware('role:reviewer')->prefix('reviewer')->group(function () {
+        Route::get('/simulations',                       [ReviewController::class, 'index']);
+        Route::post('/simulations/{simulation}/approve', [ReviewController::class, 'approve']);
+        Route::post('/simulations/{simulation}/reject',  [ReviewController::class, 'reject']);
+    });
 });

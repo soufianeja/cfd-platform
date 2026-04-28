@@ -1,4 +1,6 @@
 # ML Service — Phase 3 Implementation Plan
+admin@cfd.com
+admin123
 
 > **Prerequisites**: Phase 2 is ✅ COMPLETE — both Cd and Cl models are trained, the `/predict` endpoint returns both coefficients, STL feature extraction works, and the Laravel proxy is integrated.
 

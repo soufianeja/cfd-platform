@@ -23,6 +23,7 @@ import Search from '../pages/Search'
 import PredictPage from '../pages/ml/PredictPage'
 import MlDashboardPage from '../pages/admin/MlDashboardPage'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
+import ReviewerDashboardPage from '../pages/admin/ReviewerDashboardPage'
 
 const router = createBrowserRouter([
   {
@@ -134,6 +135,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Layout><AdminDashboardPage /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/reviewer',
+    element: (
+      <ProtectedRoute>
+        <Layout><ReviewerDashboardPage /></Layout>
       </ProtectedRoute>
     ),
   },

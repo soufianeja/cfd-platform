@@ -5,7 +5,8 @@ __pycache__/
 *$py.class
 ML_LEARNING_GUIDE.md
 ML_IMPLEMENTATION_PLAN.md
-
+ML_PHASE3_PLAN.md
+ML_PHASE2_PLAN.md
 # ML — generated artifacts (too large for git, regenerate locally)
 ml-service/models/*.pkl
 ml-service/models/best_params.json

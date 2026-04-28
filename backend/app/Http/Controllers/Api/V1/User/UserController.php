@@ -133,4 +133,33 @@ class UserController extends Controller
             'followers_count' => $user->followers()->count()
         ]);
     }
+
+    /**
+     * Change user role (Admin only). Supports: reviewer, user.
+     */
+    public function changeRole(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'role' => ['required', 'string', 'in:user,reviewer'],
+        ]);
+
+        $user = User::findOrFail($id);
+
+        if ($request->user()->id === $user->id) {
+            return response()->json(['message' => 'Cannot change your own role.'], 403);
+        }
+
+        // Admins cannot be downgraded via this endpoint
+        if ($user->role === 'admin') {
+            return response()->json(['message' => 'Cannot change an admin\'s role.'], 403);
+        }
+
+        // Sync spatie role
+        $user->syncRoles([$request->role]);
+
+        return response()->json([
+            'message' => "User role updated to {$request->role}.",
+            'role'    => $request->role,
+        ]);
+    }
 }

@@ -29,7 +29,7 @@ async def append_row(
     Requires X-API-Key header matching TRAINING_API_KEY.
     """
     if x_api_key != settings.TRAINING_API_KEY:
-        raise HTTPException(status_code=403, detail="Unauthorized")
+        raise HTTPException(status_code=403, detail=f"Unauthorized. Expected: '{settings.TRAINING_API_KEY}', Got: '{x_api_key}'")
 
     append_simulation_row(
         geometry_features=data.geometry_features,

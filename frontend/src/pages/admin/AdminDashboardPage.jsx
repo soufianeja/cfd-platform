@@ -10,6 +10,7 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState(null)
   const [meta, setMeta] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [roleChanging, setRoleChanging] = useState(null) // id of user being changed
 
   useEffect(() => {
     fetchUsers(currentPage)
@@ -33,11 +34,23 @@ export default function AdminDashboardPage() {
   const handleToggleBan = async (userId, currentStatus) => {
     try {
       const res = await api.patch(`/admin/users/${userId}/ban`)
-      // Update local state
       setUsers(users.map(u => u.id === userId ? { ...u, status: res.data.status } : u))
     } catch (err) {
       console.error('Error toggling ban:', err)
       alert(err.response?.data?.message || 'Failed to update user status.')
+    }
+  }
+
+  const handleChangeRole = async (userId, currentRole) => {
+    const newRole = currentRole === 'reviewer' ? 'user' : 'reviewer'
+    setRoleChanging(userId)
+    try {
+      await api.patch(`/admin/users/${userId}/role`, { role: newRole })
+      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u))
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to change role.')
+    } finally {
+      setRoleChanging(null)
     }
   }
 
@@ -129,14 +142,28 @@ export default function AdminDashboardPage() {
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      {u.id !== user?.id && (
-                        <button
-                          onClick={() => handleToggleBan(u.id, u.status)}
-                          className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${u.status === 'banned' ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50'}`}
-                        >
-                          {u.status === 'banned' ? 'Unban User' : 'Ban User'}
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {u.id !== user?.id && u.role !== 'admin' && (
+                          <button
+                            onClick={() => handleChangeRole(u.id, u.role)}
+                            disabled={roleChanging === u.id}
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors
+                              ${u.role === 'reviewer'
+                                ? 'border-indigo-200 text-indigo-600 hover:bg-indigo-50'
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                          >
+                            {roleChanging === u.id ? '...' : u.role === 'reviewer' ? '↩ Demote' : '⭐ Make Reviewer'}
+                          </button>
+                        )}
+                        {u.id !== user?.id && (
+                          <button
+                            onClick={() => handleToggleBan(u.id, u.status)}
+                            className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors ${u.status === 'banned' ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50'}`}
+                          >
+                            {u.status === 'banned' ? 'Unban User' : 'Ban User'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

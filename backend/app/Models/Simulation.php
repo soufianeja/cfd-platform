@@ -12,10 +12,12 @@ class Simulation extends Model
     protected $fillable = [
         'geometry_id', 'title',
         'description', 'video_result', 'status', 'parameters',
+        'ml_review_status', 'ml_validated_at',
     ];
 
     protected $casts = [
-        'parameters' => 'array',
+        'parameters'     => 'array',
+        'ml_validated_at' => 'datetime',
     ];
 
     public function geometry()
@@ -38,9 +40,16 @@ class Simulation extends Model
         return $this->morphMany(Like::class, 'likeable');
     }
 
+    public function reviews()
+    {
+        return $this->morphMany(\App\Models\Review::class, 'reviewable');
+    }
+
     public function getMetric(string $key)
     {
-        $metric = $this->metrics->where('key', $key)->first();
+        $metric = $this->metrics->first(function ($item) use ($key) {
+            return strtolower(trim($item->key)) === strtolower(trim($key));
+        });
         return $metric ? (float) $metric->value : null;
     }
 }

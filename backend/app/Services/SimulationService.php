@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Geometry;
+use App\Models\Review;
 use App\Models\Simulation;
 use App\Repositories\Interfaces\SimulationRepositoryInterface;
 use Illuminate\Http\UploadedFile;
@@ -42,6 +43,17 @@ class SimulationService
         $this->storeImages($simulation, $images, $data);
 
         $simulation->load(['metrics', 'images']);
+
+        // Auto-create a pending ML review record
+        Review::create([
+            'reviewer_id'     => null, // Will be assigned by a reviewer
+            'reviewable_id'   => $simulation->id,
+            'reviewable_type' => Simulation::class,
+            'status'          => 'pending',
+            'feedback'        => null,
+            'reviewed_at'     => null,
+        ]);
+
         return $simulation;
     }
 

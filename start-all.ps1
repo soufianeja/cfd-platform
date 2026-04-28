@@ -53,8 +53,8 @@ Ok "Laravel backend started. (PID: $($backendJob.Id))"
 
 Write-Host ""
 
-# ── 3. ML Service / FastAPI (port 9000) ─────────────────────
-Info "Starting ML service on http://localhost:9000 ..."
+# ── 3. ML Service / FastAPI (port 9001) ─────────────────────
+Info "Starting ML service on http://localhost:9001 ..."
 $mlPath = Join-Path $ROOT "ml-service"
 
 # Detect python command (prefer virtual environment)
@@ -76,7 +76,7 @@ if ($null -eq $pythonCmd) {
     Error "Python not found in PATH. Please add Python to your PATH and retry."
 } else {
     $mlJob = Start-Process -FilePath "powershell.exe" `
-        -ArgumentList "-NoExit", "-Command", "Set-Location '$mlPath'; $pythonCmd -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload" `
+        -ArgumentList "-NoExit", "-Command", "Set-Location '$mlPath'; $pythonCmd -m uvicorn main:app --host 0.0.0.0 --port 9001 --reload" `
         -PassThru
     Ok "ML service started. (PID: $($mlJob.Id))"
 }

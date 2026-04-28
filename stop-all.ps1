@@ -40,8 +40,8 @@ if ($uvicornProcs) {
     }
 }
 
-# 2. Sweep port 9000 just in case
-$pids9000 = (netstat -ano | Select-String ":9000 ") |
+# 2. Sweep port 9001 just in case
+$pids9000 = (netstat -ano | Select-String ":9001 ") |
     ForEach-Object { ($_ -split '\s+')[-1] } |
     Sort-Object -Unique |
     Where-Object { $_ -match '^\d+$' -and $_ -ne '0' }
