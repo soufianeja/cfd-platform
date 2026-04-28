@@ -103,4 +103,8 @@ class User extends Authenticatable
             'follower_id'
         )->withPivot('created_at');
     }
+    public function getRoleAttribute()
+    {
+        return $this->roles->first()?->name ?? 'user';
+    }
 }

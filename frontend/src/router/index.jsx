@@ -21,6 +21,8 @@ import SimulationEdit from '../pages/simulations/SimulationEdit'
 import UserProfile from '../pages/users/UserProfile'
 import Search from '../pages/Search'
 import PredictPage from '../pages/ml/PredictPage'
+import MlDashboardPage from '../pages/admin/MlDashboardPage'
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
 
 const router = createBrowserRouter([
   {
@@ -119,6 +121,22 @@ const router = createBrowserRouter([
   { path: '/register', element: <Register /> },
   { path: '/search', element: <Layout><Search /></Layout> },
   { path: '/predict', element: <Layout><PredictPage /></Layout> },
+  {
+    path: '/admin/ml',
+    element: (
+      <ProtectedRoute>
+        <Layout><MlDashboardPage /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin',
+    element: (
+      <ProtectedRoute>
+        <Layout><AdminDashboardPage /></Layout>
+      </ProtectedRoute>
+    ),
+  },
 ])
 
 export default router

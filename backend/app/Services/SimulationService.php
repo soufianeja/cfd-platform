@@ -32,6 +32,7 @@ class SimulationService
             'title'       => $data['title'],
             'description' => $data['description'] ?? null,
             'status'      => $data['status'],
+            'parameters'  => $data['parameters'] ?? null,
         ]);
 
         if (!empty($data['metrics'])) {
@@ -50,6 +51,7 @@ class SimulationService
             'title'       => $data['title']       ?? null,
             'description' => $data['description'] ?? null,
             'status'      => $data['status']       ?? null,
+            'parameters'  => $data['parameters']  ?? null,
         ], fn($v) => $v !== null));
 
         if (array_key_exists('metrics', $data)) {
@@ -61,7 +63,26 @@ class SimulationService
 
         $this->storeImages($simulation, $newImages, $data);
 
-        $simulation->load(['metrics', 'images']);
+        $simulation->load(['metrics', 'images', 'geometry.cfdProject']);
+
+        // Step 3.3 Auto-Append to Dataset
+        if (($data['status'] ?? null) === 'validated') {
+            $cd = $simulation->getMetric('cd');
+            $cl = $simulation->getMetric('cl');
+
+            if ($cd !== null && $cl !== null) {
+                \Illuminate\Support\Facades\Http::withHeaders([
+                    'X-API-Key' => config('services.ml.key')
+                ])->post(config('services.ml.url') . '/api/v1/dataset/append', [
+                    'geometry_type'     => $simulation->geometry->cfdProject->type ?? 'other',
+                    'geometry_features' => $simulation->geometry->features,
+                    'simulation_params' => $simulation->parameters ?? [],
+                    'drag_coefficient'  => $cd,
+                    'lift_coefficient'  => $cl,
+                ]);
+            }
+        }
+
         return $simulation;
     }
 

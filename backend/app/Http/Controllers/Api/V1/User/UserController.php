@@ -13,6 +13,45 @@ use Illuminate\Http\JsonResponse;
 class UserController extends Controller
 {
     /**
+     * Get all users (Admin).
+     */
+    public function index()
+    {
+        $users = User::withCount(['cfdProjects', 'projects'])
+                     ->orderBy('created_at', 'desc')
+                     ->paginate(20);
+        
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'total'        => $users->total(),
+            ]
+        ]);
+    }
+
+    /**
+     * Toggle ban status of a user (Admin).
+     */
+    public function ban($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Prevent banning yourself if you are admin
+        if (request()->user()->id === $user->id) {
+            return response()->json(['message' => 'Cannot ban yourself.'], 403);
+        }
+
+        $user->status = $user->status === 'banned' ? 'active' : 'banned';
+        $user->save();
+
+        return response()->json([
+            'message' => 'User status updated successfully.',
+            'status' => $user->status
+        ]);
+    }
+    /**
      * Get public profile and stats.
      */
     public function show(Request $request, User $user): UserResource

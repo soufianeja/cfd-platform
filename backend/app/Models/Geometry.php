@@ -13,6 +13,8 @@ class Geometry extends Model
         'cfd_project_id', 'name', 'geometry_file',
         'file_type', 'preview_image',
         'description', 'file_size',
+        'surface_area', 'volume', 'length', 'width',
+        'height', 'frontal_area', 'aspect_ratio'
     ];
 
     protected $casts = [
@@ -32,5 +34,18 @@ class Geometry extends Model
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function getFeaturesAttribute()
+    {
+        return [
+            'surface_area' => $this->surface_area,
+            'volume' => $this->volume,
+            'length' => $this->length,
+            'width' => $this->width,
+            'height' => $this->height,
+            'frontal_area' => $this->frontal_area,
+            'aspect_ratio' => $this->aspect_ratio,
+        ];
     }
 }

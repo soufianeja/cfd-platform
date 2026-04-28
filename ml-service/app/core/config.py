@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     MODEL_DIR: str = "./models"
     TRAINING_API_KEY: str = "your-secret-key-here"
+    RETRAIN_THRESHOLD: int = 50  # auto-retrain after this many real validated rows
 
     class Config:
         env_file = ".env"

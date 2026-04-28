@@ -65,4 +65,32 @@ class MlPredictionController extends Controller
 
         return response()->json($response->json());
     }
+
+    public function datasetSize()
+    {
+        $response = Http::timeout(5)->get(
+            config('services.ml.url') . '/api/v1/dataset/size'
+        );
+
+        if ($response->failed()) {
+            return response()->json(['error' => 'ML Service unavailable'], 503);
+        }
+
+        return response()->json($response->json());
+    }
+
+    public function retrain()
+    {
+        $response = Http::withHeaders([
+            'x-api-key' => config('services.ml.key')
+        ])->timeout(300)->post(
+            config('services.ml.url') . '/api/v1/training/train'
+        );
+
+        if ($response->failed()) {
+            return response()->json(['error' => 'ML Service unavailable or unauthorized'], 503);
+        }
+
+        return response()->json($response->json());
+    }
 }

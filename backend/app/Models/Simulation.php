@@ -11,7 +11,11 @@ class Simulation extends Model
 
     protected $fillable = [
         'geometry_id', 'title',
-        'description', 'video_result', 'status',
+        'description', 'video_result', 'status', 'parameters',
+    ];
+
+    protected $casts = [
+        'parameters' => 'array',
     ];
 
     public function geometry()
@@ -32,5 +36,11 @@ class Simulation extends Model
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function getMetric(string $key)
+    {
+        $metric = $this->metrics->where('key', $key)->first();
+        return $metric ? (float) $metric->value : null;
     }
 }

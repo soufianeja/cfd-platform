@@ -20,6 +20,8 @@ class UserResource extends JsonResource
                 'linkedin' => $this->linkedin,
                 'website' => $this->website,
                 'email' => $this->email,
+                'role' => $this->role,
+                'status' => $this->status,
             ],
             'stats' => [
                 'cfd_projects_count' => $this->cfd_projects_count ?? 0,

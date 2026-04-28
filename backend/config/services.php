@@ -36,7 +36,8 @@ return [
     ],
 
     'ml' => [
-        'url' => env('ML_SERVICE_URL', 'http://localhost:9000'),
+        'url' => env('ML_SERVICE_URL', 'http://localhost:9005'),
+        'key' => env('ML_SERVICE_KEY', 'default_training_key_123'),
     ],
 
 ];

@@ -19,6 +19,7 @@ Route::get('/search', [SearchController::class, 'index']);
 
 // ML Service (public status)
 Route::get('/ml/status', [MlPredictionController::class, 'trainingStatus']);
+Route::get('/ml/dataset/size', [MlPredictionController::class, 'datasetSize']);
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -58,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ML Predictions (proxied securely through Laravel)
     Route::post('/ml/predict', [MlPredictionController::class, 'predict']);
     Route::post('/ml/extract', [MlPredictionController::class, 'extract']);
+    Route::post('/ml/train', [MlPredictionController::class, 'retrain']);
 
     // CFD Projects
     Route::post('/cfd-projects', [CfdProjectController::class, 'store']);
@@ -87,11 +89,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/likes',                [LikeController::class, 'toggle']);
     Route::post('/users/{user}/follow',  [UserController::class, 'follow']);
 
-    // // Admin only
-    // Route::middleware('role:admin')->prefix('admin')->group(function () {
-    //     Route::get('/users',           [UserController::class, 'index']);
-    //     Route::patch('/users/{id}/ban', [UserController::class, 'ban']);
-    // });
+    // Admin only
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::get('/users',           [UserController::class, 'index']);
+        Route::patch('/users/{id}/ban', [UserController::class, 'ban']);
+    });
 
     // // Reviewer only
     // Route::middleware('role:reviewer')->prefix('reviews')->group(function () {
