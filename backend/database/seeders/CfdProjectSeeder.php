@@ -12,7 +12,7 @@ class CfdProjectSeeder extends Seeder
     public function run(): void
     {
         User::factory(3)->create()->each(function ($user) {
-        $user->assignRole('researcher');
+        $user->assignRole('user');
 
         CfdProject::factory(3)->create(['user_id' => $user->id]);
         Project::factory(3)->create(['user_id' => $user->id]);

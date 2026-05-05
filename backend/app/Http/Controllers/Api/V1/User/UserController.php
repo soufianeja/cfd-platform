@@ -155,7 +155,11 @@ class UserController extends Controller
         }
 
         // Sync spatie role
-        $user->syncRoles([$request->role]);
+        if ($request->role === 'user') {
+            $user->syncRoles([]); // Clear roles to fallback to default 'user'
+        } else {
+            $user->syncRoles([$request->role]);
+        }
 
         return response()->json([
             'message' => "User role updated to {$request->role}.",

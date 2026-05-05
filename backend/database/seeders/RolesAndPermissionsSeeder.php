@@ -48,19 +48,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'delete_any_comment',
         ]);
 
-    Role::create(['name' => 'researcher'])
+    Role::create(['name' => 'user'])
         ->givePermissionTo([
             'publish_project',
             'publish_cfd_project',
             'submit_for_review',
             'archive_project',
-        ]);
-
-    Role::create(['name' => 'student'])
-        ->givePermissionTo([
-            'publish_project',
-            'publish_cfd_project',
-            'submit_for_review',
         ]);
     }
 }

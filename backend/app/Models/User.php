@@ -42,6 +42,10 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
+    protected $appends = [
+        'role',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

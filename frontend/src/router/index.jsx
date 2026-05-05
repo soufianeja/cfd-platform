@@ -24,6 +24,7 @@ import PredictPage from '../pages/ml/PredictPage'
 import MlDashboardPage from '../pages/admin/MlDashboardPage'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
 import ReviewerDashboardPage from '../pages/admin/ReviewerDashboardPage'
+import Settings from '../pages/Settings'
 
 const router = createBrowserRouter([
   {
@@ -111,6 +112,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Layout><Profile /></Layout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/settings',
+    element: (
+      <ProtectedRoute>
+        <Layout><Settings /></Layout>
       </ProtectedRoute>
     ),
   },

@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me', [AuthController::class, 'updateProfile']);
 
     // ML Predictions (proxied securely through Laravel)
     Route::post('/ml/predict', [MlPredictionController::class, 'predict']);
